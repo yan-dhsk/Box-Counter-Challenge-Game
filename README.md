@@ -1,5 +1,7 @@
 # Box Counter Challenge
 
+Desenvolvido durante o 2º período da graduação em Sistemas de Informação.
+
 ## Descrição
 
 Box Counter Challenge é um jogo de agilidade visual e mental onde o objetivo principal é contar com precisão o número de caixas exibidas na tela durante um período limitado de tempo.
