@@ -4,7 +4,7 @@
 
 
 void Gera_numero_de_caixas(int dificuldade, int *caixas);
-int Desenha_caixas(int *caixas);
+int Desenha_caixas(int *caixas, int dificuldade);
 
 
 int main(void){
@@ -35,7 +35,7 @@ int main(void){
 
             BeginMode3D(camera);
             Gera_numero_de_caixas(dificuldade, caixas);
-            quantidade_de_caixas=Desenha_caixas(caixas);
+            quantidade_de_caixas=Desenha_caixas(caixas, dificuldade);
             DrawGrid(10, 1.0f);
                 
             EndMode3D();
@@ -45,7 +45,7 @@ int main(void){
             DrawFPS(10, 10);
             
         EndDrawing();
-WaitTime(1.2);
+WaitTime(0.3);
 dificuldade++;
     
     }
@@ -66,27 +66,38 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas){
     }
 }
 
-int Desenha_caixas(int *caixas){
-    int contador_de_caixas=0;
+int Desenha_caixas(int *caixas, int dificuldade){
+    int contador_de_caixas=0, contador_de_linha=0;
     float x=-5.5, z=-4.5;
     Vector3 cubePosition = { 0.0f, 0.5f, 0.0f };
     for(int a=0;a<100;a++){
         x=x+1.0;
         if(a!=0 && a%10==0){
-                x=-4.5;
-                z=z+1.0;
-            }
-        if(caixas[a]==1){
-            contador_de_caixas++;
-            cubePosition.z = z;
-            cubePosition.x = x;
-            DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, RED);
-            DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
-            }
-        caixas[a]=0;
+            x=-4.5;
+            z=z+1.0;
+            contador_de_linha++;
         }
-    return contador_de_caixas;
-    
-    
-    
+        if(caixas[a]==1){
+            if( (a%(9+(10*contador_de_linha)))!=0 && (a-90)<0 && ((rand() %(100-dificuldade)))==0 && caixas[a+1] == 1 ){
+                contador_de_caixas++;
+                cubePosition.z = z+0.5;
+                cubePosition.x = x+0.5;
+                DrawCube(cubePosition, 2.0f, 1.0f, 2.0f, BLUE);
+                DrawCubeWires(cubePosition, 2.0f, 1.1f, 2.0f, BLACK);
+                caixas[a+1]=2;
+                caixas[a+10]=2;
+                caixas[a+11]=2;
+            }
+            else{
+                contador_de_caixas++;
+                cubePosition.z = z;
+                cubePosition.x = x;
+                DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, WHITE);
+                DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
+
+            }
+        }
+        caixas[a]=0;
+    }
+    return contador_de_caixas;    
 }
