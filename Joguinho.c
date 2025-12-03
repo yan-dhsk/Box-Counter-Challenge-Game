@@ -19,33 +19,52 @@ int main(void){
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };         
     camera.fovy = 45.0f;                                
-    camera.projection = CAMERA_PERSPECTIVE;
-    
+    camera.projection = CAMERA_PERSPECTIVE;   
     
     DisableCursor();
     SetTargetFPS(60);
-    int caixas[100], dificuldade=1, quantidade_de_caixas;
+    
+    Texture2D fundo=LoadTexture("a.png"); 
+    int caixas[100], dificuldade=1, quantidade_de_caixas, palpite=0;
     char teste;
+    float tempo_inicial=0.0, tempo_atual=0.0;
     srand(time(NULL));
     
     while(!WindowShouldClose()){
             BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            BeginMode3D(camera);
-            Gera_numero_de_caixas(dificuldade, caixas);
-            quantidade_de_caixas=Desenha_caixas(caixas, dificuldade);
-            DrawGrid(10, 1.0f);
-                
-            EndMode3D();
-            teste = quantidade_de_caixas+48;
-            DrawText("Quantidade de caixas:", 10, 40, 20, DARKGRAY);
-            DrawText(&teste, 230, 40, 20, DARKGRAY);
-            DrawFPS(10, 10);
             
-        EndDrawing();
-WaitTime(0.3);
+                ClearBackground(RAYWHITE);
+
+                BeginMode3D(camera);
+            
+                    Gera_numero_de_caixas(dificuldade, caixas);
+                    quantidade_de_caixas=Desenha_caixas(caixas, dificuldade);
+                    DrawGrid(10, 1.0f);
+
+                EndMode3D();
+            
+                teste = quantidade_de_caixas+48;
+                DrawText("Quantidade de caixas:", 10, 40, 20, DARKGRAY);
+                DrawText(&teste, 230, 40, 20, DARKGRAY);
+                DrawFPS(10, 10);
+            
+            EndDrawing();
+            
+            WaitTime(2.0);
+            
+            tempo_inicial=GetTime();
+            while(tempo_atual-tempo_inicial<3.0 && !WindowShouldClose()){
+            tempo_atual=GetTime();
+            BeginDrawing();
+            DrawTexture (fundo, 0, 0, WHITE);
+            DrawText(TextFormat("Palpite: %03i", palpite), 10, 40, 20, BLACK);
+            EndDrawing();
+            if (IsKeyDown(KEY_UP)) palpite++;
+            if (IsKeyDown(KEY_DOWN)) palpite--; 
+                
+            }
+
+
 dificuldade++;
     
     }
