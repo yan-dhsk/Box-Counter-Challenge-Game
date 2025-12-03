@@ -92,7 +92,7 @@ int Desenha_caixas(int *caixas, int dificuldade){
                 contador_de_caixas++;
                 cubePosition.z = z;
                 cubePosition.x = x;
-                DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, WHITE);
+                DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, RED);
                 DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
 
             }
@@ -100,4 +100,5 @@ int Desenha_caixas(int *caixas, int dificuldade){
         caixas[a]=0;
     }
     return contador_de_caixas;    
+
 }
