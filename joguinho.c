@@ -25,7 +25,7 @@ int main(void){
     SetTargetFPS(60);
     srand(time(NULL));
     
-    int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, contador=0, vidas[]={1,1,1}, pontos=0, game_over=0;
+    int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, contador=0, vidas[]={1,1,1,1,1}, pontos=0, game_over=0;
     float tempo_atual, tempo_inicial;
     
     while(!WindowShouldClose()){
@@ -184,7 +184,7 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas){
     }
     else if(((quantidade_de_caixas-1)==palpite) || ((quantidade_de_caixas+1)==palpite)){
         pontos=50;
-        for(int a=0;a<3;a++){
+        for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
                 break;
@@ -193,7 +193,7 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas){
     }
     else{
         pontos=0;
-        for(int a=0;a<3;a++){
+        for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
                 break;
@@ -204,7 +204,7 @@ return pontos;
 }
 
 int Checa_vida(int *vidas){
-    for(int a=0;a<3;a++){
+    for(int a=0;a<5;a++){
         if(vidas[a]==1){
             return 0;            
         }
@@ -219,9 +219,9 @@ void Desenha_status(int *vidas, int rodada, int pontos){
     DrawText("PONTOS:", 30, 400, 30, BLACK);
     DrawText(TextFormat("Rodada: %i", rodada), 540, 40, 30, BLACK);
     DrawText(TextFormat("%i", pontos), 90, 440, 30, BLACK);
-    for(int a=0;a<3;a++){
+    for(int a=0;a<5;a++){
         if(vidas[a]==1){
-            DrawRectangle((a*48)+1035, 450, 40, 40, RED);
+            DrawRectangle((a*38)+1010, 450, 30, 30, RED);
         }
     }
     
