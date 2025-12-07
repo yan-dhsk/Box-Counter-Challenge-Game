@@ -31,7 +31,7 @@ int main(void){
     while(!WindowShouldClose()){
         for(int x=0;x<100;x++){caixas[x]=0;}
         rodada++;
-        dificuldade=(rodada/3);
+        dificuldade=7+rodada;
         
         Gera_numero_de_caixas(dificuldade, caixas);
         
@@ -48,7 +48,7 @@ int main(void){
         
         tempo_inicial=GetTime();
         tempo_atual=GetTime();
-        while((tempo_atual-tempo_inicial)<(3.5-(0.3*dificuldade)) && !WindowShouldClose()){
+        while((tempo_atual-tempo_inicial)<(2.5-(0.02*dificuldade)) && !WindowShouldClose()){
             tempo_atual=GetTime();
         }
         palpite=Palpite_do_usuario();
@@ -98,7 +98,7 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas){
                 caixas[a+10]=9;
                 caixas[a+11]=9;
             }
-            else{
+            else if(caixas[a]==0){
                 caixas[a]=1;
             }
         }
