@@ -3,15 +3,15 @@
 #include "stdio.h"
 
 
-void carregarMenu();
+void carregarMenu(Music fundo, bool controleMusica);
 void carregarInstrucao();
 void fecharInstrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transparente, Texture2D WS_pintado, Texture2D vidas, Music fundoTutorial);
 void fecharMenu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Texture2D background, Texture2D titulo, Music fundo, Sound HoverFinal, Sound play, Sound select1);
-void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Texture2D background, Texture2D titulo, Music ndo, Sound HoverFinal, Sound play, Sound select1);
+void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Texture2D background, Texture2D titulo, Music fundo, Sound HoverFinal, Sound play, Sound select1, bool controleMusica);
 void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transparente, Texture2D WS_pintado, Texture2D vidas, Music fundoTutorial);
-void digitarNick(Font tahoma);
-void carregarPlacar();
-
+void digitarNick(Font tahoma, Music FundoTutorial);
+void carregarPlacar(Music fundo);
+void tresdoisum(Font tahoma);
 void registrarPlacar(char *nome, int pontuacao);
 
 void main(void)
@@ -20,10 +20,11 @@ void main(void)
     InitAudioDevice();
     SetTargetFPS(60);
     
-    carregarMenu();
+    Music fundo = LoadMusicStream("sounds/Kevin MacLeod Pinball Spring - Kevin MacLeod Archive (youtube).mp3");
+    carregarMenu(fundo, true);
 }
 
-void carregarMenu() {
+void carregarMenu(Music fundo, bool controleMusica) {
     
     Texture2D botaoIniciar = LoadTexture("assets/botao_iniciar_spritesheet.png");
     Texture2D botaoPlacar = LoadTexture("assets/botao_placar_spritesheet.png");
@@ -31,17 +32,15 @@ void carregarMenu() {
     Texture2D background = LoadTexture("assets/background_menu.png");
     Texture2D titulo = LoadTexture("assets/texto_principal_sprite.png");
     
-    Music fundo = LoadMusicStream("sounds/Kevin MacLeod Pinball Spring - Kevin MacLeod Archive (youtube).mp3");
-    
     Sound HoverFinal = LoadSound("sounds/UI Hover - Sound Effect (HD) - Sound Library (youtube) (mp3cut.net).mp3");
     Sound play = LoadSound("sounds/SELECT Button Sound Effect - Brawl Stars - Sound Effects (youtube) (mp3cut.net).mp3");
     Sound select1 = LoadSound("sounds/Simple Game UI Sounds - SELECT1(mp3cut.net).mp3");
     
-    menu(botaoIniciar, botaoPlacar, botaoSair, background, titulo, fundo, HoverFinal, play, select1);
+    menu(botaoIniciar, botaoPlacar, botaoSair, background, titulo, fundo, HoverFinal, play, select1, controleMusica);
     
 }
 
-void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Texture2D background, Texture2D titulo, Music fundo, Sound HoverFinal, Sound play, Sound select1){
+void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Texture2D background, Texture2D titulo, Music fundo, Sound HoverFinal, Sound play, Sound select1, bool controleMusica){
     Rectangle Otitulo = {30, 120, 1583, 100};
     Rectangle iniciar = {480, 320, 320, 90};
     Rectangle placar = {482, 430, 320, 91};
@@ -50,12 +49,19 @@ void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Te
     int controleHover [4] = {0, 0, 0, 0};
     int controleMenu [4] = {0, 0, 0, 0};
     
+    if (controleMusica == true){
     PlayMusicStream(fundo);
-    SetMusicVolume(fundo, 0.4);
+    SetMusicVolume(fundo, 0.3);
+    }
+    
+    int fechar = 0;
     
     while (true)
     {
         if (IsKeyPressed(KEY_ESCAPE) == true){
+            fechar++;
+        }
+        if (IsKeyPressed(KEY_ESCAPE) == true && fechar == 2){
             break;
         }
         
@@ -148,12 +154,13 @@ void menu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSair, Te
     if (controleMenu[0] == 1){
         controleMenu[0] = 0;
         fecharMenu;
+        UnloadMusicStream(fundo);
         carregarInstrucao();
     }
     if (controleMenu[1] == 1){
         controleMenu[1] = 0;
         fecharMenu;
-        carregarPlacar();
+        carregarPlacar(fundo);
     }
         CloseWindow(); 
 }
@@ -164,7 +171,7 @@ void fecharMenu(Texture2D botaoIniciar, Texture2D botaoPlacar, Texture2D botaoSa
     UnloadTexture(botaoSair);
     UnloadTexture(background);
     UnloadTexture(titulo);
-    UnloadMusicStream(fundo);
+
     UnloadSound(HoverFinal);
     UnloadSound(play);
     UnloadSound(select1);
@@ -187,9 +194,10 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
 
     int controleFade = 0;
     int controleTutorial[] = {0, 0, 0, 0, 0};
+    int tempo = 0;
     
     PlayMusicStream(fundoTutorial);
-    SetMusicVolume(fundoTutorial, 0.4);
+    SetMusicVolume(fundoTutorial, 0.3);
     
     while (!WindowShouldClose()){
         UpdateMusicStream(fundoTutorial);
@@ -218,9 +226,11 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
                     DrawTextEx(tahoma, " O JOGADOR DEVE CONTAR\n A QUANTIDADE DE CAIXAS\n  QUE APARECEM NA TELA", (Vector2){394, 320}, 50, 0, (Color){255, 255, 255, controleFade});  
                 }
                 if (controleFade == 255){
+                    if (tempo <= 120){
                     DrawTextEx(tahoma, " O JOGADOR DEVE CONTAR\n A QUANTIDADE DE CAIXAS\n  QUE APARECEM NA TELA", (Vector2){394, 320}, 50, 0, (Color){255, 255, 255, controleFade}); 
-                    WaitTime(2);
-                    controleTutorial[0] = 1;}
+                    tempo++;}
+                    else{
+                    controleTutorial[0] = 1;}}
             }
             if (controleTutorial[0] == 1) {
                     DrawTextEx(tahoma, " O JOGADOR DEVE CONTAR\n A QUANTIDADE DE CAIXAS\n  QUE APARECEM NA TELA", (Vector2){394, 320}, 50, 0, (Color){255, 255, 255, controleFade}); 
@@ -228,6 +238,7 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
                     if (controleFade == 0){
                         controleTutorial[0] = 2;
                         controleTutorial[1] = 1;
+                        tempo = 0;
                     }
                     }
                 
@@ -237,9 +248,12 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
                     DrawTextEx(tahoma, " CADA ACERTO CONCEDE\nAO JOGADOR 100 PONTOS.\n\n CADA ERRO O JOGADOR\n     PERDE UMA VIDA.", (Vector2){410, 290}, 50, 0, (Color){255, 255, 255, controleFade});
                 }
                 if (controleFade == 255) {
+                    if (tempo <= 180){
                     DrawTextEx(tahoma, " CADA ACERTO CONCEDE\nAO JOGADOR 100 PONTOS.\n\n CADA ERRO O JOGADOR\n     PERDE UMA VIDA", (Vector2){410, 290}, 50, 0, (Color){255, 255, 255, controleFade});
-                    WaitTime(3);
+                    tempo++;}
+                    else{
                     controleTutorial[1] = 2;
+                    tempo = 0;}
                 }
                 
             }
@@ -262,10 +276,13 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
                     DrawTextureRec(vidas, (Rectangle){0, 0, 160, 33}, (Vector2){580, 350}, (Color){255, 255, 255, controleFade});
                 }
                 if (controleFade == 255){
+                    if (tempo <= 240){
                     DrawTextEx(tahoma, "VOCE TEM CINCO VIDAS\n\n  SE O JOGADOR ERRAR\n    POR POUCO AINDA\n    GANHA 50 PONTOS.", (Vector2){420, 290}, 50, 0, (Color){255, 255, 255, controleFade});
                     DrawTextureRec(vidas, (Rectangle){0, 0, 160, 33}, (Vector2){580, 350}, (Color){255, 255, 255, controleFade});
-                    WaitTime(4);
+                    tempo++;}
+                    else{
                     controleTutorial[2] = 2;
+                    tempo = 0;}
                 }}
             if (controleTutorial[2] == 2){
                 if (controleFade > 1){
@@ -285,10 +302,13 @@ void instrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_transpa
                     DrawTexture(WS_transparente, 750, 250, (Color){255, 255, 255, controleFade});
                 }
                 if (controleFade == 255){
+                    if (tempo <= 180){
                     DrawTextEx(tahoma, "USE 'W' E 'S'\nPARA AJUSTAR\nA CONTAGEM\n\nBOA SORTE!", (Vector2){420, 290}, 50, 0, (Color){255, 255, 255, controleFade});
                     DrawTexture(WS_transparente, 750, 250, (Color){255, 255, 255, controleFade});
-                    WaitTime(3);
+                    tempo++;}
+                    else{
                 controleTutorial[3] = 2;
+                    tempo = 0;}
                 }
             }
             
@@ -319,19 +339,27 @@ void fecharInstrucao(Font tahoma, Texture2D background_instrucao, Texture2D WS_t
     UnloadTexture(WS_pintado);
     UnloadTexture(vidas);
     
-    UnloadMusicStream(fundoTutorial);
     
-    digitarNick(tahoma);
+    digitarNick(tahoma, fundoTutorial);
 }
 
-void digitarNick(Font tahoma) {
+void digitarNick(Font tahoma, Music fundoTutorial) {
 
     Texture2D background = LoadTexture("assets/nick_background.png");
 
     char nome[20] = "\0";
     int letras = 0;
 
-    while (!WindowShouldClose()) {
+    int fechar = 0;
+    
+    while (true) {
+        if (IsKeyPressed(KEY_ESCAPE) == true){
+            fechar++;
+        }
+        if (IsKeyPressed(KEY_ESCAPE) == true && fechar == 2){
+            break;
+        }
+        UpdateMusicStream(fundoTutorial);
         int key = GetCharPressed();
         while (key > 0) {
             if ((key >= 32) && (key <= 125) && (letras < 19)) {
@@ -360,25 +388,75 @@ void digitarNick(Font tahoma) {
         EndDrawing();
     }
 
-    UnloadFont(tahoma);
+    UnloadMusicStream(fundoTutorial);
     UnloadTexture(background);
+    tresdoisum(tahoma);
 
 }
 
-void carregarPlacar(){
+void tresdoisum(Font tahoma){
+    
+int tempo = 0;
+Sound temporizador = LoadSound("sounds/3 2 1 0 Countdown With Sound Effect _ No Copyright _ Ready To Use.mp3");
+PlaySound(temporizador);
+while (tempo < 240){
+    BeginDrawing();
+        ClearBackground(WHITE);
+        if (tempo <= 60){
+        DrawTextEx(tahoma, "3", (Vector2){650, 300}, 90, 0, (Color){0, 122, 255, 255});
+        tempo++;
+        }
+        if (tempo > 60 && tempo <= 120){
+        DrawTextEx(tahoma, "2", (Vector2){650, 300}, 90, 0, (Color){0, 122, 255, 255});
+        tempo++;
+        }
+        if (tempo > 120 && tempo <=180){
+        DrawTextEx(tahoma, "1", (Vector2){650, 300}, 90, 0, (Color){0, 122, 255, 255});
+        tempo++;
+        }
+        if (tempo > 180 && tempo < 240){
+            DrawTextEx(tahoma, "GO!", (Vector2){620, 300}, 90, 0, (Color){0, 122, 255, 255});
+        tempo++;
+        }
+        if (tempo == 239){
+            break;
+        }
+        EndDrawing();
+}
+
+}
+
+void carregarPlacar(Music fundo){
     Texture2D fundoPlacar = LoadTexture("assets/placar_background.png");
+    
+    FILE *placar = fopen("data/Placar.txt", "r");
+    int total = 0;
+    char nomes[10][20];
+    int pontos[10];
+    
+    int altura = 200; 
+   
+    while (total < 10 && fscanf(placar, "%s %d", nomes[total], &pontos[total]) == 2){
+        total++;
+    }
+    
     while (!WindowShouldClose()){
+        UpdateMusicStream(fundo);
         BeginDrawing();
             DrawTexture(fundoPlacar, 0, 0, WHITE);
+            for(int i = 0; i<total; i++){
+                DrawText(nomes[i], 400, (altura + i*40), 32, WHITE);
+                DrawText(TextFormat("%d", pontos[i]), 820, (altura + i*40), 32, WHITE);
+            }
         EndDrawing();
     }
     UnloadTexture(fundoPlacar);
-    carregarMenu();
+    carregarMenu(fundo, false);
 }
 
 void registrarPlacar(char *nome, int pontuacao) {
     
-    char nomes[11][50] = {0};
+    char nomes[11][20] = {0};
     int pontos[11] = {0};
     int n = 0;
     
@@ -417,7 +495,7 @@ void registrarPlacar(char *nome, int pontuacao) {
                     pontos[i] = pontos[j];
                     pontos[j] = temp;
                     
-                    char tempNome[50];
+                    char tempNome[20];
                     strcpy(tempNome, nomes[i]);
                     strcpy(nomes[i], nomes[j]);
                     strcpy(nomes[j], tempNome);
