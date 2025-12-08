@@ -1,0 +1,4 @@
+YanBRdhsk 20000
+bot01 2000
+Vinicius 200
+bot02 100
