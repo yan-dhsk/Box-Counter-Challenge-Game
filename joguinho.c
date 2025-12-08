@@ -6,14 +6,16 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas);
 int Desenha_caixas(int *caixas);
 int Palpite_do_usuario();
 void Revela_cubos(int contador, int *caixas);
-int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas);
+int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derrota, Sound *palmas, Sound *boo, Sound *vitoria);
 int Checa_vida(int *vidas);
 void Desenha_status(int *vidas, int rodada, int pontos);
+void Mostra_cubos(Camera3D *camera, int *caixas);
 
 int main(void){
     
     int largura=1200, altura=650;
     InitWindow(largura, altura, "Caixas");
+    InitAudioDevice();
     
     Camera3D camera = { 0 };
     camera.position = (Vector3){ 0.0f, 10.0f, 10.0f };  
@@ -28,47 +30,55 @@ int main(void){
     int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, contador=0, vidas[]={1,1,1,1,1}, pontos=0, game_over=0;
     float tempo_atual, tempo_inicial;
     
+    Sound musica_de_fundo=LoadSound("sounds/Kevin MacLeod_ Blip Stream.mp3");
+    Sound tambor=LoadSound("sounds/drum-roll-for-victory-366448.mp3");
+    Sound derrota=LoadSound("sounds/derrota.mp3");
+    Sound palmas=LoadSound("sounds/palmas.mp3");
+    Sound booo=LoadSound("sounds/booo.mp3");
+    Sound vitoria=LoadSound("sounds/vitoria.mp3");    
+    
+
+    PlaySound(musica_de_fundo);
     while(!WindowShouldClose()){
-        for(int x=0;x<100;x++){caixas[x]=0;}
         rodada++;
-        dificuldade=7+rodada;
+        for(int x=0;x<100;x++){caixas[x]=0;} 
+        if(dificuldade<95){
+            dificuldade=35+(rodada*2);
+        }
+        
+        ResumeSound(musica_de_fundo);
         
         Gera_numero_de_caixas(dificuldade, caixas);
         
         BeginDrawing();
         ClearBackground(RAYWHITE);
+        
         Desenha_status(vidas, rodada, pontos);
+        
         BeginMode3D(camera);
+        
         quantidade_de_caixas=Desenha_caixas(caixas);
         DrawGrid(10, 1.0f);
-        EndMode3D();
         
-        DrawFPS(10, 10);
+        EndMode3D();
         EndDrawing();
         
         tempo_inicial=GetTime();
         tempo_atual=GetTime();
-        while((tempo_atual-tempo_inicial)<(2.5-(0.02*dificuldade)) && !WindowShouldClose()){
+        while((tempo_atual-tempo_inicial)<(2.5-(0.016*dificuldade)) && !WindowShouldClose()){
             tempo_atual=GetTime();
         }
-        palpite=Palpite_do_usuario();
-
         
-        contador=0;
-        while(contador<101 && !WindowShouldClose()){
-            contador++;
-            BeginDrawing();
-            ClearBackground(RAYWHITE);
-            BeginMode3D(camera);
-            Revela_cubos(contador, caixas);
-            DrawGrid(10, 1.0f);
-            EndMode3D();
-            EndDrawing();
-            WaitTime(0.01);
-        }
-
+        palpite=Palpite_do_usuario();
+        PauseSound(musica_de_fundo);
+        
+        SetSoundVolume(tambor, 4);
+        PlaySound(tambor);
+        Mostra_cubos(&camera, caixas);
+        StopSound(tambor);
+        
         if(!WindowShouldClose()){
-            pontos+=Checa_palpite(palpite, vidas, quantidade_de_caixas);
+            pontos+=Checa_palpite(palpite, vidas, quantidade_de_caixas, &derrota, &palmas, &booo, &vitoria);
             BeginDrawing();
             Desenha_status(vidas, rodada, pontos);
             EndDrawing();
@@ -79,12 +89,18 @@ int main(void){
         while((tempo_atual-tempo_inicial)<2.0 && !WindowShouldClose()){
             tempo_atual=GetTime();
         }
-
+        StopSound(booo);
+        StopSound(derrota);
+        StopSound(palmas);
+        StopSound(vitoria);
+        
         game_over=Checa_vida(vidas);
         if(game_over!=0){break;}
 
-    }    
-CloseWindow();   
+    }
+StopSound(musica_de_fundo);    
+CloseWindow();
+CloseAudioDevice();   
 }
 
 
@@ -92,7 +108,7 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas){
     caixas[(rand() %50)]=1;
     for(int a=0;a<100;a++){
         if(((rand() %(100-dificuldade)))==0){
-            if((rand() %3)==0 && (a%(9+(10*(a/10))))!=0 && (a-90)<0 && caixas[a+1] == 0){
+            if((rand() %3)==0 && (a%(9+(10*(a/10))))!=0 && (a-90)<0 && caixas[a]==0 && caixas[a+1] == 0){
                 caixas[a]=2;
                 caixas[a+1]=9;
                 caixas[a+10]=9;
@@ -139,14 +155,14 @@ int Palpite_do_usuario(){
     float tempo_inicial, tempo_atual;
     tempo_inicial=GetTime();
     tempo_atual=GetTime();
-    while((tempo_atual-tempo_inicial)<3.5 && !WindowShouldClose()){
+    while((tempo_atual-tempo_inicial)<4.0 && !WindowShouldClose()){
         tempo_atual=GetTime();
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawRectangle(450, 315, 300, 100, LIGHTGRAY);
         DrawText(TextFormat("Palpite: \n  %03i", palpite), 530, 325, 40, BLACK);
-        if (IsKeyPressed(KEY_UP)) palpite++;
-        if (IsKeyPressed(KEY_DOWN) && palpite!=0) palpite--;
+        if (IsKeyPressed(KEY_W)) palpite++;
+        if (IsKeyPressed(KEY_S) && palpite!=0) palpite--;
         EndDrawing(); 
     }
 return palpite;
@@ -177,16 +193,19 @@ void Revela_cubos(int contador, int *caixas){
     
 }
 
-int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas){
+int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derrota, Sound *palmas, Sound *boo, Sound *vitoria){
     int pontos;
     if(quantidade_de_caixas==palpite){
         pontos=100;
+        PlaySound(*palmas);
+        PlaySound(*vitoria);
     }
     else if(((quantidade_de_caixas-1)==palpite) || ((quantidade_de_caixas+1)==palpite)){
         pontos=50;
         for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
+                PlaySound(*derrota);
                 break;
             }
         }
@@ -196,6 +215,8 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas){
         for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
+                PlaySound(*derrota);
+                PlaySound(*boo);
                 break;
             }
         }
@@ -227,10 +248,20 @@ void Desenha_status(int *vidas, int rodada, int pontos){
     
 }   
 
-
-
-
-
+void Mostra_cubos(Camera3D *camera, int *caixas){
+    int contador=0;
+    while(contador<101 && !WindowShouldClose()){
+        contador++;
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        BeginMode3D(*camera);
+        Revela_cubos(contador, caixas);
+        DrawGrid(10, 1.0f);
+        EndMode3D();
+        EndDrawing();
+        WaitTime(0.04);
+    }   
+}
 
 
 
