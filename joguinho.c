@@ -103,7 +103,14 @@ int main(void){
         if(game_over!=0){break;}
 
     }
-StopSound(musica_de_fundo);    
+StopSound(musica_de_fundo);  
+UnloadSound(toque);
+UnloadSound(palmas);
+UnloadSound(vitoria);
+UnloadSound(derrota);
+UnloadSound(booo);
+UnloadSound(tambor);
+UnloadSound(musica_de_fundo);  
 CloseWindow();
 CloseAudioDevice();   
 }
@@ -304,7 +311,6 @@ void Mostra_cubos(Camera3D *camera, int *caixas){
         WaitTime(0.04);
     }   
 }
-
 
 
 
