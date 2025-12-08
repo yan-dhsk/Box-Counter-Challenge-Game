@@ -4,7 +4,7 @@
 
 void Gera_numero_de_caixas(int dificuldade, int *caixas);
 int Desenha_caixas(int *caixas);
-int Palpite_do_usuario();
+int Palpite_do_usuario(Sound *toque);
 void Revela_cubos(int contador, int *caixas);
 int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derrota, Sound *palmas, Sound *boo, Sound *vitoria);
 int Checa_vida(int *vidas);
@@ -36,6 +36,7 @@ int main(void){
     Sound palmas=LoadSound("sounds/palmas.mp3");
     Sound booo=LoadSound("sounds/booo.mp3");
     Sound vitoria=LoadSound("sounds/vitoria.mp3");    
+    Sound toque=LoadSound("sounds/toque.mp3");
     
 
     PlaySound(musica_de_fundo);
@@ -73,7 +74,7 @@ int main(void){
             tempo_atual=GetTime();
         }
         
-        palpite=Palpite_do_usuario();
+        palpite=Palpite_do_usuario(&toque);
         PauseSound(musica_de_fundo);
         
         SetSoundVolume(tambor, 4);
@@ -171,7 +172,7 @@ int Desenha_caixas(int *caixas){
     return contador_de_caixas;
 }
 
-int Palpite_do_usuario(){
+int Palpite_do_usuario(Sound *toque){
     int palpite=0;
     float tempo_inicial, tempo_atual;
     tempo_inicial=GetTime();
@@ -182,8 +183,16 @@ int Palpite_do_usuario(){
         ClearBackground(RAYWHITE);
         DrawRectangle(450, 315, 300, 100, LIGHTGRAY);
         DrawText(TextFormat("Palpite: \n  %03i", palpite), 530, 325, 40, BLACK);
-        if (IsKeyPressed(KEY_W)) palpite++;
-        if (IsKeyPressed(KEY_S) && palpite!=0) palpite--;
+        if (IsKeyPressed(KEY_W)){
+            palpite++;
+            SetSoundVolume(*toque, 6);
+            PlaySound(*toque);
+        }
+        if (IsKeyPressed(KEY_S) && palpite!=0){
+            palpite--;
+            SetSoundVolume(*toque, 6);
+            PlaySound(*toque);
+        }
         EndDrawing(); 
     }
 return palpite;
