@@ -27,7 +27,7 @@ int main(void){
     SetTargetFPS(60);
     srand(time(NULL));
     
-    int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, contador=0, vidas[]={1,1,1,1,1}, pontos=0, game_over=0;
+    int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, vidas[]={1,1,1,1,1}, pontos=0, game_over=0;
     float tempo_atual, tempo_inicial;
     
     Sound musica_de_fundo=LoadSound("sounds/Kevin MacLeod_ Blip Stream.mp3");
@@ -47,6 +47,10 @@ int main(void){
         }
         
         ResumeSound(musica_de_fundo);
+        
+        if(!IsSoundPlaying(musica_de_fundo)){
+            PlaySound(musica_de_fundo);
+        }
         
         Gera_numero_de_caixas(dificuldade, caixas);
         
@@ -108,12 +112,16 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas){
     caixas[(rand() %50)]=1;
     for(int a=0;a<100;a++){
         if(((rand() %(100-dificuldade)))==0){
-            if((rand() %3)==0 && (a%(9+(10*(a/10))))!=0 && (a-90)<0 && caixas[a]==0 && caixas[a+1] == 0){
+            if((rand() %3)==1 && (a%(9+(10*(a/10))))!=0 && (a-90)<0 && caixas[a]==0 && caixas[a+1] == 0){
                 caixas[a]=2;
                 caixas[a+1]=9;
                 caixas[a+10]=9;
                 caixas[a+11]=9;
             }
+            else if(rand() %3==2 && caixas[a]==0){
+                caixas[a]=3;
+            }
+            
             else if(caixas[a]==0){
                 caixas[a]=1;
             }
@@ -123,7 +131,7 @@ void Gera_numero_de_caixas(int dificuldade, int *caixas){
 
 int Desenha_caixas(int *caixas){
     int contador_de_caixas=0;
-    float x=-5.5, z=-4.5;
+    float x=-5.5,y=0.5, z=-4.5;
     Vector3 cubePosition = { 0.0f, 0.5f, 0.0f };
     for(int a=0;a<100;a++){
         x=x+1.0;
@@ -134,6 +142,7 @@ int Desenha_caixas(int *caixas){
             if(caixas[a]==1){
                 contador_de_caixas++;
                 cubePosition.z = z;
+                cubePosition.y = y;
                 cubePosition.x = x;
                 DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, WHITE);
                 DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
@@ -141,10 +150,22 @@ int Desenha_caixas(int *caixas){
             else if(caixas[a]==2){
                 contador_de_caixas++;
                 cubePosition.z = z+0.5;
+                cubePosition.y = y;
                 cubePosition.x = x+0.5;
                 DrawCube(cubePosition, 2.0f, 1.0f, 2.0f, WHITE);
                 DrawCubeWires(cubePosition, 2.0f, 1.1f, 2.0f, BLACK);
-            }    
+            }
+            else if(caixas[a]==3){
+                contador_de_caixas+=2;
+                cubePosition.z = z;
+                cubePosition.y = y;
+                cubePosition.x = x;
+                DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, WHITE);
+                DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
+                cubePosition.y = y+1.1;
+                DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, WHITE);
+                DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
+            }
             
         }
     return contador_de_caixas;
@@ -169,7 +190,7 @@ return palpite;
 }
 
 void Revela_cubos(int contador, int *caixas){
-    float x=-5.5, z=-4.5;
+    float x=-5.5,y=0.5, z=-4.5;
     Vector3 cubePosition = { 0.0f, 0.5f, 0.0f };
     for(int a=0;a<contador;a++){
         x=x+1.0;
@@ -179,15 +200,27 @@ void Revela_cubos(int contador, int *caixas){
         }
         if(caixas[a]==1){
             cubePosition.z = z;
+            cubePosition.y = y;
             cubePosition.x = x;
             DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, RED);
             DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
         }
         else if(caixas[a]==2){
             cubePosition.z = z+0.5;
+            cubePosition.y = y;
             cubePosition.x = x+0.5;
             DrawCube(cubePosition, 2.0f, 1.0f, 2.0f, BLUE);
             DrawCubeWires(cubePosition, 2.0f, 1.1f, 2.0f, BLACK);
+        }
+        else if(caixas[a]==3){
+            cubePosition.z = z;
+            cubePosition.y = y;
+            cubePosition.x = x;
+            DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, PURPLE);
+            DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
+            cubePosition.y = y+1.1;
+            DrawCube(cubePosition, 1.0f, 1.0f, 1.0f, PURPLE);
+            DrawCubeWires(cubePosition, 1.0f, 1.1f, 1.0f, BLACK);
         }
     }
     
