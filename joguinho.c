@@ -4,11 +4,11 @@
 
 void Gera_numero_de_caixas(int dificuldade, int *caixas);
 int Desenha_caixas(int *caixas);
-int Palpite_do_usuario(Sound *toque);
+int Palpite_do_usuario(Sound *toque, Font *fonte);
 void Revela_cubos(int contador, int *caixas);
 int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derrota, Sound *palmas, Sound *boo, Sound *vitoria);
 int Checa_vida(int *vidas);
-void Desenha_status(int *vidas, int rodada, int pontos);
+void Desenha_status(int *vidas, int rodada, int pontos, Texture2D *vida_cheia, Texture2D *vida_vazia, Font *fonte);
 void Mostra_cubos(Camera3D *camera, int *caixas);
 
 int main(void){
@@ -30,6 +30,11 @@ int main(void){
     int caixas[100], rodada=0, dificuldade=0, quantidade_de_caixas, palpite, vidas[]={1,1,1,1,1}, pontos=0, game_over=0;
     float tempo_atual, tempo_inicial;
     
+    Texture2D vida_cheia=LoadTexture("assets/vida_cheia.png");
+    Texture2D vida_vazia=LoadTexture("assets/vida_vazia.png");
+    
+    Font fonte=LoadFontEx("assets/tahoma.ttf", 120, 0, 0);
+    
     Sound musica_de_fundo=LoadSound("sounds/Kevin MacLeod_ Blip Stream.mp3");
     Sound tambor=LoadSound("sounds/drum-roll-for-victory-366448.mp3");
     Sound derrota=LoadSound("sounds/derrota.mp3");
@@ -46,11 +51,12 @@ int main(void){
         if(dificuldade<95){
             dificuldade=35+(rodada*2);
         }
-        
+        SetSoundVolume(musica_de_fundo, 0.3);
         ResumeSound(musica_de_fundo);
         
         if(!IsSoundPlaying(musica_de_fundo)){
             PlaySound(musica_de_fundo);
+            SetSoundVolume(musica_de_fundo, 0.3);
         }
         
         Gera_numero_de_caixas(dificuldade, caixas);
@@ -58,7 +64,7 @@ int main(void){
         BeginDrawing();
         ClearBackground(RAYWHITE);
         
-        Desenha_status(vidas, rodada, pontos);
+        Desenha_status(vidas, rodada, pontos, &vida_cheia, &vida_vazia, &fonte);
         
         BeginMode3D(camera);
         
@@ -74,10 +80,10 @@ int main(void){
             tempo_atual=GetTime();
         }
         
-        palpite=Palpite_do_usuario(&toque);
+        palpite=Palpite_do_usuario(&toque, &fonte);
         PauseSound(musica_de_fundo);
         
-        SetSoundVolume(tambor, 4);
+        SetSoundVolume(tambor, 1.5);
         PlaySound(tambor);
         Mostra_cubos(&camera, caixas);
         StopSound(tambor);
@@ -85,7 +91,7 @@ int main(void){
         if(!WindowShouldClose()){
             pontos+=Checa_palpite(palpite, vidas, quantidade_de_caixas, &derrota, &palmas, &booo, &vitoria);
             BeginDrawing();
-            Desenha_status(vidas, rodada, pontos);
+            Desenha_status(vidas, rodada, pontos, &vida_cheia, &vida_vazia, &fonte);
             EndDrawing();
         }
         
@@ -179,17 +185,20 @@ int Desenha_caixas(int *caixas){
     return contador_de_caixas;
 }
 
-int Palpite_do_usuario(Sound *toque){
+int Palpite_do_usuario(Sound *toque, Font *fonte){
     int palpite=0;
     float tempo_inicial, tempo_atual;
+    Vector2 palpite_posicao = {530.0f, 310.0f};
+    
     tempo_inicial=GetTime();
     tempo_atual=GetTime();
     while((tempo_atual-tempo_inicial)<4.0 && !WindowShouldClose()){
         tempo_atual=GetTime();
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawRectangle(450, 315, 300, 100, LIGHTGRAY);
-        DrawText(TextFormat("Palpite: \n  %03i", palpite), 530, 325, 40, BLACK);
+        DrawRectangle(490, 315, 220, 100, LIGHTGRAY);
+        DrawTextEx(*fonte,TextFormat("Palpite: \n  %03i", palpite), palpite_posicao, 50, 2, BLACK);
+
         if (IsKeyPressed(KEY_W)){
             palpite++;
             SetSoundVolume(*toque, 6);
@@ -282,16 +291,26 @@ int Checa_vida(int *vidas){
 return 1;
 }
 
-void Desenha_status(int *vidas, int rodada, int pontos){
+void Desenha_status(int *vidas, int rodada, int pontos, Texture2D *vida_cheia, Texture2D *vida_vazia, Font *fonte){
+    Vector2 vidas_posicao = {1050.0f, 400.0f};
+    Vector2 pontos_posicao = {20.0f, 400.0f};
+    Vector2 rodada_posicao = {530.0f, 40.0f};
+    Vector2 quantidade_pontos = {80.0f, 440.0f};
+
     DrawRectangle(1000, 380, 250, 130, LIGHTGRAY);
     DrawRectangle(0, 380, 200, 130, LIGHTGRAY);
-    DrawText("VIDAS:", 1050, 400, 30, BLACK);
-    DrawText("PONTOS:", 30, 400, 30, BLACK);
-    DrawText(TextFormat("Rodada: %i", rodada), 540, 40, 30, BLACK);
-    DrawText(TextFormat("%i", pontos), 90, 440, 30, BLACK);
+    
+    DrawTextEx(*fonte,"VIDAS:",vidas_posicao, 40, 2, BLACK);
+    DrawTextEx(*fonte,"PONTOS:",pontos_posicao, 40, 2, BLACK);
+    DrawTextEx(*fonte,TextFormat("Rodada: %i", rodada), rodada_posicao, 40, 2, BLACK);
+    DrawTextEx(*fonte,TextFormat("%i", pontos), quantidade_pontos, 40, 2, BLACK);
+    
     for(int a=0;a<5;a++){
         if(vidas[a]==1){
-            DrawRectangle((a*38)+1010, 450, 30, 30, RED);
+            DrawTexture(*vida_cheia, (a*38)+1010, 450, WHITE);
+        }
+        else{
+            DrawTexture(*vida_vazia, (a*38)+1010, 450, WHITE);
         }
     }
     
