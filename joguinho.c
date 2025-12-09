@@ -117,6 +117,9 @@ UnloadSound(derrota);
 UnloadSound(booo);
 UnloadSound(tambor);
 UnloadSound(musica_de_fundo);  
+UnloadTexture(vida_cheia);
+UnloadTexture(vida_vazia);
+UnloadFont(fonte);
 CloseWindow();
 CloseAudioDevice();   
 }
