@@ -4,7 +4,7 @@
 
 void Gera_numero_de_caixas(int dificuldade, int *caixas);
 int Desenha_caixas(int *caixas);
-int Palpite_do_usuario(Sound *toque, Font *fonte);
+int Palpite_do_usuario(Sound *toque, Font *fonte, int dificuldade);
 void Revela_cubos(int contador, int *caixas);
 int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derrota, Sound *palmas, Sound *boo, Sound *vitoria);
 int Checa_vida(int *vidas);
@@ -76,14 +76,14 @@ int main(void){
         
         tempo_inicial=GetTime();
         tempo_atual=GetTime();
-        while((tempo_atual-tempo_inicial)<(2.5-(0.016*dificuldade)) && !WindowShouldClose()){
+        while((tempo_atual-tempo_inicial)<(2.4-(0.016*dificuldade)) && !WindowShouldClose()){
             tempo_atual=GetTime();
         }
         
-        palpite=Palpite_do_usuario(&toque, &fonte);
+        palpite=Palpite_do_usuario(&toque, &fonte, dificuldade);
         PauseSound(musica_de_fundo);
         
-        SetSoundVolume(tambor, 1.5);
+        SetSoundVolume(tambor, 1.2);
         PlaySound(tambor);
         Mostra_cubos(&camera, caixas);
         StopSound(tambor);
@@ -188,14 +188,14 @@ int Desenha_caixas(int *caixas){
     return contador_de_caixas;
 }
 
-int Palpite_do_usuario(Sound *toque, Font *fonte){
+int Palpite_do_usuario(Sound *toque, Font *fonte, int dificuldade){
     int palpite=0;
     float tempo_inicial, tempo_atual;
     Vector2 palpite_posicao = {530.0f, 310.0f};
     
     tempo_inicial=GetTime();
     tempo_atual=GetTime();
-    while((tempo_atual-tempo_inicial)<4.5 && !WindowShouldClose()){
+    while((tempo_atual-tempo_inicial)<(1.0+(0.041*dificuldade)) && !WindowShouldClose()){
         tempo_atual=GetTime();
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -204,12 +204,12 @@ int Palpite_do_usuario(Sound *toque, Font *fonte){
 
         if (IsKeyPressed(KEY_W)){
             palpite++;
-            SetSoundVolume(*toque, 6);
+            SetSoundVolume(*toque, 1);
             PlaySound(*toque);
         }
         if (IsKeyPressed(KEY_S) && palpite!=0){
             palpite--;
-            SetSoundVolume(*toque, 6);
+            SetSoundVolume(*toque, 1);
             PlaySound(*toque);
         }
         EndDrawing(); 
@@ -258,6 +258,8 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derr
     int pontos;
     if(quantidade_de_caixas==palpite){
         pontos=100;
+        SetSoundVolume(*palmas, 0.5);
+        SetSoundVolume(*vitoria, 0.5);
         PlaySound(*palmas);
         PlaySound(*vitoria);
     }
@@ -266,6 +268,7 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derr
         for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
+                SetSoundVolume(*derrota, 0.5);
                 PlaySound(*derrota);
                 break;
             }
@@ -276,6 +279,8 @@ int Checa_palpite(int palpite, int *vidas, int quantidade_de_caixas, Sound *derr
         for(int a=0;a<5;a++){
             if(vidas[a]==1){
                 vidas[a]=0;
+                SetSoundVolume(*derrota, 0.5);
+                SetSoundVolume(*boo, 0.4);
                 PlaySound(*derrota);
                 PlaySound(*boo);
                 break;
@@ -333,7 +338,6 @@ void Mostra_cubos(Camera3D *camera, int *caixas){
         WaitTime(0.04);
     }   
 }
-
 
 
 
