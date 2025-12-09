@@ -195,7 +195,7 @@ int Palpite_do_usuario(Sound *toque, Font *fonte){
     
     tempo_inicial=GetTime();
     tempo_atual=GetTime();
-    while((tempo_atual-tempo_inicial)<4.0 && !WindowShouldClose()){
+    while((tempo_atual-tempo_inicial)<4.5 && !WindowShouldClose()){
         tempo_atual=GetTime();
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -333,6 +333,7 @@ void Mostra_cubos(Camera3D *camera, int *caixas){
         WaitTime(0.04);
     }   
 }
+
 
 
 
