@@ -1,4 +1,10 @@
-YanBRdhsk 20000
-bot01 2000
-Vinicius 200
-bot02 100
+Yan02 2250
+NebulaDrifter 2000
+NovaPhantom 1850
+SpectreWolf 980
+CyberCleric 820
+VoidRanger 750
+LunarWisp 640
+FrostWeaver 530
+IronHaven 390
+SolarFlareX 270
